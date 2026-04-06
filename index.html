@@ -23,10 +23,9 @@
 
   <div class="bg-emerald-100 border border-emerald-300 text-emerald-800 px-6 py-4 rounded-2xl mb-8 text-sm flex items-center gap-3">
     <i class="fa-solid fa-check-circle text-xl"></i>
-    <strong>Usando SerpApi + Google Flights</strong> — preços e dados reais do mercado.
+    <strong>Usando SerpApi + Google Flights</strong> — preços reais.
   </div>
 
-  <!-- FORMULÁRIO -->
   <form onsubmit="buscar(event)" class="bg-white shadow-xl rounded-3xl p-8 grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
     <div class="md:col-span-3">
       <label class="block text-xs font-medium text-gray-500 mb-1">DE ONDE?</label>
@@ -58,7 +57,7 @@
 </div>
 
 <script>
-// === NOVA CHAVE SERPAPI (atualizada) ===
+// === CHAVE SERPAPI ===
 const SERPAPI_KEY = "45bede6232b3c0db38487358453cc1acf53da29128464e32258d908b3729e8e4";
 
 const DEFAULT_AIRPORTS = [
@@ -100,18 +99,32 @@ async function buscar(e) {
 
   btn.disabled = true;
   btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Buscando...`;
-  container.innerHTML = `<div class="text-center py-12 text-gray-500">Buscando voos reais no Google Flights...</div>`;
+  container.innerHTML = `<div class="text-center py-12 text-gray-500">Buscando voos reais...</div>`;
 
   try {
-    let url = `https://serpapi.com/search.json?engine=google_flights&departure_id=${origin}&arrival_id=${destination}&outbound_date=${depDate}&currency=BRL&hl=pt-BR&gl=BR`;
+    let params = new URLSearchParams({
+      engine: "google_flights",
+      departure_id: origin,
+      arrival_id: destination,
+      outbound_date: depDate,
+      currency: "BRL",
+      hl: "pt-BR",
+      gl: "BR",
+      type: "1"   // 1 = Round trip
+    });
 
-    if (retDate) url += `&return_date=${retDate}`;
+    if (retDate) {
+      params.append("return_date", retDate);
+    } else {
+      params.set("type", "2"); // 2 = One way (caso não tenha data de volta)
+    }
 
-    const response = await fetch(url + `&api_key=${SERPAPI_KEY}`);
+    const url = `https://serpapi.com/search.json?${params.toString()}&api_key=${SERPAPI_KEY}`;
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
+    const response = await fetch(url);
     const data = await response.json();
+
+    if (data.error) throw new Error(data.error);
 
     document.getElementById("header").innerHTML = `
       Voos de <span class="text-emerald-600">${origin}</span> → <span class="text-emerald-600">${destination}</span>
@@ -123,20 +136,20 @@ async function buscar(e) {
     const flights = data.best_flights || data.flights || [];
 
     if (flights.length === 0) {
-      container.innerHTML = `<div class="text-center py-16 text-orange-600">Nenhum voo encontrado para esta rota/data.<br>Tente outra rota ou data.</div>`;
+      container.innerHTML = `<div class="text-center py-16 text-orange-600">Nenhum voo encontrado.<br>Tente outra rota ou data.</div>`;
       return;
     }
 
     flights.forEach(flight => {
       const price = flight.price || "—";
-      const airline = flight.airline || (flight.flights && flight.flights[0] ? flight.flights[0].airline : "Companhia");
-      const depTime = flight.departure_time || (flight.flights && flight.flights[0] ? flight.flights[0].departure_time : "—");
-      const arrTime = flight.arrival_time || (flight.flights && flight.flights[0] ? flight.flights[0].arrival_time : "—");
+      const airline = flight.airline || (flight.flights && flight.flights[0] ? flight.flights[0].airline : "—");
+      const depTime = flight.departure_time || "—";
+      const arrTime = flight.arrival_time || "—";
       const duration = flight.duration || "—";
       const stops = flight.stops !== undefined ? (flight.stops === 0 ? "Direto" : flight.stops + " escala(s)") : "—";
 
       const kiwiLink = `https://www.kiwi.com/br/search/results/${origin}-${destination}/${depDate.replace(/-/g,'')}/${retDate ? retDate.replace(/-/g,'') : ''}`;
-      const googleLink = `https://www.google.com/travel/flights?q=Flights%20to%20${destination}%20from%20${origin}%20on%20${depDate}`;
+      const googleLink = `https://www.google.com/travel/flights?q=Flights to ${destination} from ${origin} on ${depDate}`;
 
       container.innerHTML += `
         <div class="card-hover bg-white border border-orange-100 rounded-3xl p-8 grid grid-cols-12 items-center gap-8 shadow-md">
@@ -154,7 +167,6 @@ async function buscar(e) {
           </div>
           <div class="col-span-2 text-center">
             <div class="text-4xl font-bold text-emerald-600">R$ ${price}</div>
-            <div class="text-xs text-gray-500">por pessoa</div>
           </div>
           <div class="col-span-3 flex flex-col gap-3">
             <a href="${kiwiLink}" target="_blank" class="bg-orange-500 hover:bg-orange-600 text-white text-center py-4 rounded-3xl font-semibold text-lg transition">
@@ -172,8 +184,8 @@ async function buscar(e) {
 
   } catch (error) {
     container.innerHTML = `<div class="text-center py-12 text-red-600">
-      Erro ao buscar voos: ${error.message}<br><br>
-      Verifique sua conexão com a internet.
+      Erro: ${error.message}<br><br>
+      Tente novamente ou verifique se as datas estão corretas.
     </div>`;
   } finally {
     btn.disabled = false;
