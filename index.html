@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VooFácil - Passagens Aéreas</title>
+  <title>VooFácil</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
@@ -16,25 +16,22 @@
 <body class="bg-zinc-950 text-zinc-100">
 
   <div class="max-w-7xl mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-10">
+    <div class="flex items-center justify-between mb-10">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-3xl">✈️</div>
         <h1 class="text-4xl font-bold">VooFácil</h1>
       </div>
-      <a href="https://wa.me/5514998370223" target="_blank" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 px-6 py-3 rounded-3xl text-white font-medium">
-        <i class="fa-brands fa-whatsapp"></i> Fale conosco
-      </a>
     </div>
 
-    <!-- Formulário -->
+    <!-- FORMULÁRIO -->
     <form onsubmit="buscar(event)" class="bg-zinc-900 rounded-3xl p-8 mb-10 grid grid-cols-1 md:grid-cols-12 gap-6">
       <div class="md:col-span-3">
         <label class="block text-xs font-medium text-zinc-400 mb-1">DE ONDE?</label>
-        <input id="origin" type="text" value="GRU" placeholder="ex: GRU, São Paulo, LIS" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5 text-lg focus:border-emerald-400 outline-none">
+        <input id="origin" type="text" value="GRU" placeholder="ex: GRU, São Paulo, LIS, Lisboa" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5 text-lg focus:border-emerald-400 outline-none">
       </div>
       <div class="md:col-span-3">
         <label class="block text-xs font-medium text-zinc-400 mb-1">PARA ONDE?</label>
-        <input id="destination" type="text" value="JFK" placeholder="ex: JFK, Nova York, LIS" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5 text-lg focus:border-emerald-400 outline-none">
+        <input id="destination" type="text" value="JFK" placeholder="ex: JFK, Nova York, LIS, Lisboa" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5 text-lg focus:border-emerald-400 outline-none">
       </div>
       <div class="md:col-span-2">
         <label class="block text-xs font-medium text-zinc-400 mb-1">IDA</label>
@@ -76,6 +73,7 @@
 
     function buscar(e) {
       e.preventDefault();
+
       const origin = document.getElementById("origin").value.trim().toUpperCase() || "GRU";
       const destination = document.getElementById("destination").value.trim().toUpperCase() || "JFK";
 
