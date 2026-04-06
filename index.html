@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VooFácil - Amadeus API (Teste)</title>
+  <title>VooFácil - Kiwi.com API (Dados Reais)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
@@ -19,16 +19,14 @@
     <div class="flex items-center gap-3">
       <div class="text-4xl">✈️</div>
       <h1 class="text-5xl font-bold text-orange-500">VooFácil 
-        <span class="text-sm font-normal text-emerald-600">(Amadeus API - Ambiente de Teste)</span>
+        <span class="text-sm font-normal text-emerald-600">(Kiwi.com API - Dados Reais)</span>
       </h1>
     </div>
   </div>
 
-  <!-- Aviso de Teste -->
-  <div class="bg-amber-100 border border-amber-300 text-amber-800 px-6 py-4 rounded-2xl mb-8 text-sm">
-    ⚠️ <strong>Ambiente de Teste da Amadeus:</strong> Os preços e voos são limitados. 
-    Nem sempre aparecem muitas opções e os preços podem ser parecidos. 
-    Na versão de produção (real) os preços variam bastante conforme horário, companhia e data.
+  <!-- Aviso -->
+  <div class="bg-emerald-100 border border-emerald-300 text-emerald-800 px-6 py-4 rounded-2xl mb-8 text-sm">
+    ✅ Usando <strong>Kiwi.com Tequila API</strong> — preços e companhias mais reais e variados.
   </div>
 
   <!-- FORMULÁRIO -->
@@ -63,89 +61,29 @@
 </div>
 
 <script>
-// === SUAS CREDENCIAIS AMADEUS ===
-const AMADEUS_API_KEY = "hW1z4VRJoMouT60oHxnntL0lpzuqAMd2";
-const AMADEUS_API_SECRET = "WuS1A0xkVCN60Wnt";
-const BASE_URL = "https://test.api.amadeus.com";
+// === SUA CHAVE KIWI TEQUILA (OBRIGATÓRIO) ===
+const KIWI_API_KEY = "SUA_KIWI_API_KEY_AQUI";   // ← Substitua pela sua chave real!
 
-// === LISTA COMPLETA DE AEROPORTOS (com Ilhéus e todas as anteriores) ===
+const BASE_URL = "https://tequila-api.kiwi.com";
+
+// Lista completa de aeroportos (atualizada com Ilhéus, Bauru, etc.)
 const DEFAULT_AIRPORTS = [
-  // Brasil - Principais
-  {iata:"GRU", cidade:"São Paulo (Guarulhos)"}, 
-  {iata:"CGH", cidade:"São Paulo (Congonhas)"},
-  {iata:"GIG", cidade:"Rio de Janeiro (Galeão)"}, 
-  {iata:"SDU", cidade:"Rio de Janeiro (Santos Dumont)"},
-  {iata:"VCP", cidade:"Campinas (Viracopos)"},
-  {iata:"CNF", cidade:"Belo Horizonte (Confins)"}, 
-  {iata:"BSB", cidade:"Brasília"}, 
-  {iata:"SSA", cidade:"Salvador"},
-  {iata:"FOR", cidade:"Fortaleza"}, 
-  {iata:"REC", cidade:"Recife"},
-  {iata:"POA", cidade:"Porto Alegre"}, 
-  {iata:"CWB", cidade:"Curitiba"},
-  {iata:"FLN", cidade:"Florianópolis"}, 
-  {iata:"NAT", cidade:"Natal"},
-  {iata:"MAO", cidade:"Manaus"}, 
-  {iata:"BEL", cidade:"Belém"},
-
-  // Interior de SP
-  {iata:"SJP", cidade:"São José do Rio Preto"}, 
-  {iata:"RAO", cidade:"Ribeirão Preto"},
-  {iata:"JTC", cidade:"Bauru"},
-
-  // Bahia e Nordeste
-  {iata:"IOS", cidade:"Ilhéus"}, 
-  {iata:"BPS", cidade:"Porto Seguro"},
-  {iata:"AJU", cidade:"Aracaju"}, 
-  {iata:"MCZ", cidade:"Maceió"},
-  {iata:"JPA", cidade:"João Pessoa"}, 
-  {iata:"VIX", cidade:"Vitória"},
-
-  // Outros estados
-  {iata:"GYN", cidade:"Goiânia"},
-  {iata:"CGR", cidade:"Campo Grande"}, 
-  {iata:"UDI", cidade:"Uberlândia"},
-  {iata:"THE", cidade:"Teresina"}, 
-  {iata:"SLZ", cidade:"São Luís"},
-  {iata:"CGB", cidade:"Cuiabá"},
-
-  // Internacional
-  {iata:"FCO", cidade:"Roma"}, 
-  {iata:"LIS", cidade:"Lisboa"},
-  {iata:"MXP", cidade:"Milão"}, 
-  {iata:"LUX", cidade:"Luxemburgo"},
-  {iata:"CDG", cidade:"Paris"}, 
-  {iata:"LHR", cidade:"Londres"},
-  {iata:"MAD", cidade:"Madrid"}, 
-  {iata:"AMS", cidade:"Amsterdã"},
-  {iata:"EZE", cidade:"Buenos Aires"},
-  {iata:"SCL", cidade:"Santiago (Chile)"},
-  {iata:"MCO", cidade:"Orlando"}, 
-  {iata:"FLL", cidade:"Fort Lauderdale"},
-  {iata:"MIA", cidade:"Miami"},
-  {iata:"JFK", cidade:"Nova York"}, 
-  {iata:"EWR", cidade:"Newark / New Jersey"},
-  {iata:"LIM", cidade:"Lima"}
+  {iata:"GRU", cidade:"São Paulo (Guarulhos)"}, {iata:"CGH", cidade:"São Paulo (Congonhas)"},
+  {iata:"GIG", cidade:"Rio de Janeiro (Galeão)"}, {iata:"SDU", cidade:"Rio de Janeiro (Santos Dumont)"},
+  {iata:"VCP", cidade:"Campinas"}, {iata:"CNF", cidade:"Belo Horizonte"},
+  {iata:"BSB", cidade:"Brasília"}, {iata:"SSA", cidade:"Salvador"},
+  {iata:"FOR", cidade:"Fortaleza"}, {iata:"REC", cidade:"Recife"},
+  {iata:"IOS", cidade:"Ilhéus"}, {iata:"BPS", cidade:"Porto Seguro"},
+  {iata:"AJU", cidade:"Aracaju"}, {iata:"MCZ", cidade:"Maceió"},
+  {iata:"JPA", cidade:"João Pessoa"}, {iata:"VIX", cidade:"Vitória"},
+  {iata:"SJP", cidade:"São José do Rio Preto"}, {iata:"RAO", cidade:"Ribeirão Preto"},
+  {iata:"JTC", cidade:"Bauru"}, {iata:"FCO", cidade:"Roma"},
+  {iata:"LIS", cidade:"Lisboa"}, {iata:"MXP", cidade:"Milão"},
+  {iata:"LUX", cidade:"Luxemburgo"}, {iata:"MCO", cidade:"Orlando"},
+  {iata:"FLL", cidade:"Fort Lauderdale"}, {iata:"MIA", cidade:"Miami"},
+  {iata:"JFK", cidade:"Nova York"}, {iata:"EWR", cidade:"Newark / New Jersey"},
+  {iata:"EZE", cidade:"Buenos Aires"}, {iata:"SCL", cidade:"Santiago"}
 ];
-
-let accessToken = null;
-
-async function getAccessToken() {
-  const response = await fetch(`${BASE_URL}/v1/security/oauth2/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "client_credentials",
-      client_id: AMADEUS_API_KEY,
-      client_secret: AMADEUS_API_SECRET
-    })
-  });
-
-  if (!response.ok) throw new Error("Falha ao obter token da Amadeus");
-  const data = await response.json();
-  accessToken = data.access_token;
-  return accessToken;
-}
 
 function populateDatalists() {
   const originList = document.getElementById("origin-list");
@@ -170,83 +108,81 @@ async function buscar(e) {
   const container = document.getElementById("results");
 
   btn.disabled = true;
-  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Buscando na Amadeus...`;
-  container.innerHTML = `<div class="text-center py-12 text-gray-500">Conectando à Amadeus API...</div>`;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Buscando voos reais...`;
+  container.innerHTML = `<div class="text-center py-12 text-gray-500">Conectando ao Kiwi.com...</div>`;
 
   try {
-    if (!accessToken) await getAccessToken();
+    // Formato de data para Kiwi: dd/mm/yyyy
+    const formatDate = (dateStr) => {
+      const [y, m, d] = dateStr.split("-");
+      return `${d}/${m}/${y}`;
+    };
 
-    let url = `${BASE_URL}/v2/shopping/flight-offers?originLocationCode=${originInput}&destinationLocationCode=${destinationInput}&departureDate=${depDate}&adults=1&max=10&currencyCode=BRL`;
+    const dateFrom = formatDate(depDate);
+    const dateTo = retDate ? formatDate(retDate) : dateFrom;
 
-    if (retDate) url += `&returnDate=${retDate}`;
+    let url = `${BASE_URL}/v2/search?fly_from=${originInput}&fly_to=${destinationInput}&date_from=${dateFrom}&date_to=${dateFrom}&adults=1&curr=BRL&limit=12`;
+
+    if (retDate) {
+      url += `&return_from=${dateTo}&return_to=${dateTo}`;
+    }
 
     const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
+      headers: { "apikey": KIWI_API_KEY }
     });
 
-    if (!response.ok) throw new Error(`Erro da Amadeus: ${response.status}`);
+    if (!response.ok) throw new Error(`Erro ${response.status} - Verifique sua API Key`);
 
     const data = await response.json();
     const flights = data.data || [];
 
     document.getElementById("header").innerHTML = `
-      Voos de <span class="text-emerald-600">${originInput}</span> 
-      para <span class="text-emerald-600">${destinationInput}</span> 
+      Voos reais de <span class="text-emerald-600">${originInput}</span> 
+      para <span class="text-emerald-600">${destinationInput}</span>
       <span class="text-xl text-gray-500 ml-4">${depDate}${retDate ? ' ↔ ' + retDate : ''}</span>
     `;
 
     container.innerHTML = "";
 
     if (flights.length === 0) {
-      container.innerHTML = `<div class="text-center py-16 text-orange-600 text-lg">
-        Nenhum voo encontrado para esta rota/data no ambiente de teste da Amadeus.<br><br>
-        Tente rotas como: <strong>GRU-MCO</strong>, <strong>GRU-FCO</strong>, <strong>IOS-GRU</strong> ou <strong>VCP-MIA</strong>.
-      </div>`;
+      container.innerHTML = `<div class="text-center py-16 text-orange-600">Nenhum voo encontrado para esta rota/data.<br>Tente outras combinações ou datas diferentes.</div>`;
       return;
     }
 
-    flights.forEach(offer => {
-      const price = offer.price?.total || "N/A";
-      const currency = offer.price?.currency || "BRL";
-      const itinerary = offer.itineraries?.[0] || {};
-      const segments = itinerary.segments || [];
-      const firstSegment = segments[0] || {};
-      const lastSegment = segments[segments.length - 1] || {};
+    flights.forEach(flight => {
+      const price = flight.price || "—";
+      const depTime = flight.departure ? flight.departure.substring(11,16) : "—";
+      const arrTime = flight.arrival ? flight.arrival.substring(11,16) : "—";
+      const duration = flight.duration ? flight.duration.replace("PT","").replace("H","h ").replace("M","min") : "—";
+      const stops = flight.stops || 0;
+      const airline = flight.airlines ? flight.airlines[0] : "—";
+      const route = flight.route ? flight.route[0] : {};
 
-      const depTime = firstSegment.departure?.at ? firstSegment.departure.at.substring(11,16) : "--:--";
-      const arrTime = lastSegment.arrival?.at ? lastSegment.arrival.at.substring(11,16) : "--:--";
-      const duration = itinerary.duration ? itinerary.duration.replace("PT","").replace("H","h ").replace("M","min") : "N/A";
-      const stops = segments.length > 1 ? `${segments.length-1} escala(s)` : "Direto";
-
-      const airlineCode = offer.validatingAirlineCodes?.[0] || firstSegment.carrierCode || "—";
-      const flightNumber = firstSegment.number ? ` ${firstSegment.number}` : "";
+      const deepLink = flight.deep_link || `https://www.kiwi.com/br/search/results/${originInput}-${destinationInput}/${depDate.replace(/-/g,'')}/${retDate ? retDate.replace(/-/g,'') : ''}`;
 
       container.innerHTML += `
         <div class="card-hover bg-white border border-orange-100 rounded-3xl p-8 grid grid-cols-12 items-center gap-8 shadow-md">
-          <div class="col-span-2 flex items-center gap-4">
+          <div class="col-span-3 flex items-center gap-4">
             <span class="text-5xl">✈️</span>
             <div>
-              <div class="font-bold text-2xl">${airlineCode}${flightNumber}</div>
+              <div class="font-bold text-2xl">${airline}</div>
               <div class="text-sm text-gray-500">Companhia</div>
             </div>
           </div>
           <div class="col-span-4 flex justify-between text-2xl font-medium">
             <div>${depTime}</div>
-            <div class="text-center text-emerald-500">${duration}<br><span class="text-sm">${stops}</span></div>
+            <div class="text-center text-emerald-500">${duration}<br><span class="text-sm">${stops > 0 ? stops + ' escala(s)' : 'Direto'}</span></div>
             <div>${arrTime}</div>
           </div>
-          <div class="col-span-3 text-center">
-            <div class="text-5xl font-bold text-emerald-600">R$ ${parseFloat(price).toFixed(0)}</div>
-            <div class="text-sm text-gray-500">${currency}</div>
+          <div class="col-span-2 text-center">
+            <div class="text-4xl font-bold text-emerald-600">R$ ${price}</div>
           </div>
-          <div class="col-span-3 flex flex-col gap-4">
-            <a href="https://www.kiwi.com/br/search/results/${originInput}-${destinationInput}/${depDate}/${retDate || ''}" 
-               target="_blank" 
-               class="bg-orange-500 text-white text-center py-5 rounded-3xl font-semibold text-lg hover:bg-orange-600 transition">
-              Ver no Kiwi.com
+          <div class="col-span-3 flex flex-col gap-3">
+            <a href="${deepLink}" target="_blank" 
+               class="bg-orange-500 hover:bg-orange-600 text-white text-center py-5 rounded-3xl font-semibold text-lg transition">
+              Comprar no Kiwi.com
             </a>
-            <button onclick="enviarAlerta()" 
-                    class="border-2 border-emerald-500 text-emerald-600 py-5 rounded-3xl font-semibold hover:bg-emerald-50 transition">
+            <button onclick="enviarAlerta()" class="border-2 border-emerald-500 text-emerald-600 py-5 rounded-3xl font-semibold hover:bg-emerald-50 transition">
               Alerta WhatsApp
             </button>
           </div>
@@ -255,10 +191,7 @@ async function buscar(e) {
 
   } catch (error) {
     console.error(error);
-    container.innerHTML = `<div class="text-center py-12 text-red-600">
-      Erro ao buscar voos: ${error.message}<br><br>
-      Tente novamente ou escolha outra rota.
-    </div>`;
+    container.innerHTML = `<div class="text-center py-12 text-red-600">Erro: ${error.message}<br><br>Verifique se a API Key está correta.</div>`;
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> BUSCAR`;
@@ -271,7 +204,7 @@ function enviarAlerta() {
 
 window.onload = () => {
   populateDatalists();
-  buscar(null);
+  buscar(null); // busca inicial
 };
 </script>
 </body>
