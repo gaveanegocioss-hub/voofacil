@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VooFácil - Amadeus API (06/04/2026)</title>
+  <title>VooFácil - Amadeus API (Teste)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
@@ -15,13 +15,20 @@
 </head>
 <body class="bg-gradient-to-b from-yellow-50 to-white min-h-screen">
 <div class="max-w-7xl mx-auto px-6 py-8">
-  <div class="flex items-center justify-between mb-10">
+  <div class="flex items-center justify-between mb-6">
     <div class="flex items-center gap-3">
       <div class="text-4xl">✈️</div>
       <h1 class="text-5xl font-bold text-orange-500">VooFácil 
-        <span class="text-sm font-normal text-emerald-600">(Amadeus API - Teste)</span>
+        <span class="text-sm font-normal text-emerald-600">(Amadeus API - Ambiente de Teste)</span>
       </h1>
     </div>
+  </div>
+
+  <!-- Aviso de Teste -->
+  <div class="bg-amber-100 border border-amber-300 text-amber-800 px-6 py-4 rounded-2xl mb-8 text-sm">
+    ⚠️ <strong>Ambiente de Teste da Amadeus:</strong> Os preços e voos são limitados. 
+    Nem sempre aparecem muitas opções e os preços podem ser parecidos. 
+    Na versão de produção (real) os preços variam bastante conforme horário, companhia e data.
   </div>
 
   <!-- FORMULÁRIO -->
@@ -56,22 +63,20 @@
 </div>
 
 <script>
-// === SUAS CREDENCIAIS AMADEUS (TESTE) ===
+// === SUAS CREDENCIAIS AMADEUS ===
 const AMADEUS_API_KEY = "hW1z4VRJoMouT60oHxnntL0lpzuqAMd2";
 const AMADEUS_API_SECRET = "WuS1A0xkVCN60Wnt";
-
 const BASE_URL = "https://test.api.amadeus.com";
 
-// === LISTA ATUALIZADA COM ILHÉUS (IOS) ===
+// === LISTA COMPLETA DE AEROPORTOS (com Ilhéus e todas as anteriores) ===
 const DEFAULT_AIRPORTS = [
-  // === BRASIL ===
+  // Brasil - Principais
   {iata:"GRU", cidade:"São Paulo (Guarulhos)"}, 
   {iata:"CGH", cidade:"São Paulo (Congonhas)"},
   {iata:"GIG", cidade:"Rio de Janeiro (Galeão)"}, 
   {iata:"SDU", cidade:"Rio de Janeiro (Santos Dumont)"},
   {iata:"VCP", cidade:"Campinas (Viracopos)"},
   {iata:"CNF", cidade:"Belo Horizonte (Confins)"}, 
-  {iata:"PLU", cidade:"Belo Horizonte (Pampulha)"},
   {iata:"BSB", cidade:"Brasília"}, 
   {iata:"SSA", cidade:"Salvador"},
   {iata:"FOR", cidade:"Fortaleza"}, 
@@ -83,20 +88,20 @@ const DEFAULT_AIRPORTS = [
   {iata:"MAO", cidade:"Manaus"}, 
   {iata:"BEL", cidade:"Belém"},
 
-  // Interior de SP e região
+  // Interior de SP
   {iata:"SJP", cidade:"São José do Rio Preto"}, 
   {iata:"RAO", cidade:"Ribeirão Preto"},
-  {iata:"JTC", cidade:"Bauru"}, 
+  {iata:"JTC", cidade:"Bauru"},
 
   // Bahia e Nordeste
   {iata:"IOS", cidade:"Ilhéus"}, 
   {iata:"BPS", cidade:"Porto Seguro"},
   {iata:"AJU", cidade:"Aracaju"}, 
   {iata:"MCZ", cidade:"Maceió"},
-  {iata:"JPA", cidade:"João Pessoa"},
+  {iata:"JPA", cidade:"João Pessoa"}, 
+  {iata:"VIX", cidade:"Vitória"},
 
-  // Outros importantes
-  {iata:"VIX", cidade:"Vitória"}, 
+  // Outros estados
   {iata:"GYN", cidade:"Goiânia"},
   {iata:"CGR", cidade:"Campo Grande"}, 
   {iata:"UDI", cidade:"Uberlândia"},
@@ -104,7 +109,7 @@ const DEFAULT_AIRPORTS = [
   {iata:"SLZ", cidade:"São Luís"},
   {iata:"CGB", cidade:"Cuiabá"},
 
-  // === INTERNACIONAL ===
+  // Internacional
   {iata:"FCO", cidade:"Roma"}, 
   {iata:"LIS", cidade:"Lisboa"},
   {iata:"MXP", cidade:"Milão"}, 
@@ -185,7 +190,7 @@ async function buscar(e) {
     const flights = data.data || [];
 
     document.getElementById("header").innerHTML = `
-      Voos reais de <span class="text-emerald-600">${originInput}</span> 
+      Voos de <span class="text-emerald-600">${originInput}</span> 
       para <span class="text-emerald-600">${destinationInput}</span> 
       <span class="text-xl text-gray-500 ml-4">${depDate}${retDate ? ' ↔ ' + retDate : ''}</span>
     `;
@@ -193,29 +198,36 @@ async function buscar(e) {
     container.innerHTML = "";
 
     if (flights.length === 0) {
-      container.innerHTML = `<div class="text-center py-12 text-orange-600">Nenhum voo encontrado para esta rota/data na Amadeus (ambiente de teste).<br><br>Tente rotas como GRU-IOS, IOS-GRU, GRU-MCO ou VCP-FCO.</div>`;
+      container.innerHTML = `<div class="text-center py-16 text-orange-600 text-lg">
+        Nenhum voo encontrado para esta rota/data no ambiente de teste da Amadeus.<br><br>
+        Tente rotas como: <strong>GRU-MCO</strong>, <strong>GRU-FCO</strong>, <strong>IOS-GRU</strong> ou <strong>VCP-MIA</strong>.
+      </div>`;
       return;
     }
 
     flights.forEach(offer => {
       const price = offer.price?.total || "N/A";
       const currency = offer.price?.currency || "BRL";
-      const itinerary = offer.itineraries[0] || {};
+      const itinerary = offer.itineraries?.[0] || {};
       const segments = itinerary.segments || [];
       const firstSegment = segments[0] || {};
       const lastSegment = segments[segments.length - 1] || {};
 
       const depTime = firstSegment.departure?.at ? firstSegment.departure.at.substring(11,16) : "--:--";
       const arrTime = lastSegment.arrival?.at ? lastSegment.arrival.at.substring(11,16) : "--:--";
-      const duration = itinerary.duration ? itinerary.duration.replace("PT", "").replace("H", "h ").replace("M", "min") : "N/A";
-      const stops = segments.length > 1 ? `${segments.length - 1} escala(s)` : "Direto";
+      const duration = itinerary.duration ? itinerary.duration.replace("PT","").replace("H","h ").replace("M","min") : "N/A";
+      const stops = segments.length > 1 ? `${segments.length-1} escala(s)` : "Direto";
+
+      const airlineCode = offer.validatingAirlineCodes?.[0] || firstSegment.carrierCode || "—";
+      const flightNumber = firstSegment.number ? ` ${firstSegment.number}` : "";
 
       container.innerHTML += `
         <div class="card-hover bg-white border border-orange-100 rounded-3xl p-8 grid grid-cols-12 items-center gap-8 shadow-md">
           <div class="col-span-2 flex items-center gap-4">
             <span class="text-5xl">✈️</span>
             <div>
-              <div class="font-bold text-2xl">${offer.validatingAirlineCodes ? offer.validatingAirlineCodes[0] : 'Companhia'}</div>
+              <div class="font-bold text-2xl">${airlineCode}${flightNumber}</div>
+              <div class="text-sm text-gray-500">Companhia</div>
             </div>
           </div>
           <div class="col-span-4 flex justify-between text-2xl font-medium">
@@ -233,7 +245,8 @@ async function buscar(e) {
                class="bg-orange-500 text-white text-center py-5 rounded-3xl font-semibold text-lg hover:bg-orange-600 transition">
               Ver no Kiwi.com
             </a>
-            <button onclick="enviarAlerta()" class="border-2 border-emerald-500 text-emerald-600 py-5 rounded-3xl font-semibold hover:bg-emerald-50 transition">
+            <button onclick="enviarAlerta()" 
+                    class="border-2 border-emerald-500 text-emerald-600 py-5 rounded-3xl font-semibold hover:bg-emerald-50 transition">
               Alerta WhatsApp
             </button>
           </div>
@@ -242,7 +255,10 @@ async function buscar(e) {
 
   } catch (error) {
     console.error(error);
-    container.innerHTML = `<div class="text-center py-12 text-red-600">Erro ao buscar voos: ${error.message}<br><br>Tente novamente ou escolha outra rota.</div>`;
+    container.innerHTML = `<div class="text-center py-12 text-red-600">
+      Erro ao buscar voos: ${error.message}<br><br>
+      Tente novamente ou escolha outra rota.
+    </div>`;
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> BUSCAR`;
