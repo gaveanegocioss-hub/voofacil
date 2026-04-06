@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VooFácil - v10 - Kiwi Atualizado</title>
+  <title>VooFácil - Amadeus API (06/04/2026)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
@@ -14,12 +14,13 @@
   </style>
 </head>
 <body class="bg-gradient-to-b from-yellow-50 to-white min-h-screen">
-
 <div class="max-w-7xl mx-auto px-6 py-8">
   <div class="flex items-center justify-between mb-10">
     <div class="flex items-center gap-3">
       <div class="text-4xl">✈️</div>
-      <h1 class="text-5xl font-bold text-orange-500">VooFácil</h1>
+      <h1 class="text-5xl font-bold text-orange-500">VooFácil 
+        <span class="text-sm font-normal text-emerald-600">(Amadeus API - Teste)</span>
+      </h1>
     </div>
   </div>
 
@@ -27,42 +28,41 @@
   <form onsubmit="buscar(event)" class="bg-white shadow-xl rounded-3xl p-8 grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
     <div class="md:col-span-3">
       <label class="block text-xs font-medium text-gray-500 mb-1">DE ONDE?</label>
-      <input id="origin" list="origin-list" type="text" value="GRU" placeholder="Digite GRU, São Paulo, LIS..." 
-             class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
+      <input id="origin" list="origin-list" type="text" value="GRU" placeholder="GRU, GIG..." class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
       <datalist id="origin-list"></datalist>
     </div>
-
     <div class="md:col-span-3">
       <label class="block text-xs font-medium text-gray-500 mb-1">PARA ONDE?</label>
-      <input id="destination" list="destination-list" type="text" value="JFK" placeholder="Digite JFK, Lisboa, CGH..." 
-             class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
+      <input id="destination" list="destination-list" type="text" value="JFK" placeholder="JFK, MIA..." class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
       <datalist id="destination-list"></datalist>
     </div>
-
     <div class="md:col-span-2">
       <label class="block text-xs font-medium text-gray-500 mb-1">IDA</label>
       <input type="date" id="departure" value="2026-04-15" class="w-full px-6 py-5 border-2 border-emerald-200 rounded-3xl">
     </div>
-
     <div class="md:col-span-2">
       <label class="block text-xs font-medium text-gray-500 mb-1">VOLTA</label>
       <input type="date" id="return" value="2026-04-22" class="w-full px-6 py-5 border-2 border-emerald-200 rounded-3xl">
     </div>
-
     <div class="md:col-span-2 flex items-end">
-      <button type="submit" class="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xl rounded-3xl flex items-center justify-center gap-3">
+      <button type="submit" id="search-btn" class="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xl rounded-3xl flex items-center justify-center gap-3 transition-all">
         <i class="fa-solid fa-magnifying-glass"></i> BUSCAR
       </button>
     </div>
   </form>
 
-  <!-- RESULTADOS -->
   <div id="header" class="text-3xl font-bold text-orange-600 mb-6"></div>
   <div id="results" class="space-y-8"></div>
 </div>
 
 <script>
-// Lista de aeroportos
+// === SUAS CREDENCIAIS AMADEUS (TESTE) ===
+const AMADEUS_API_KEY = "hW1z4VRJoMouT60oHxnntL0lpzuqAMd2";
+const AMADEUS_API_SECRET = "WuS1A0xkVCN60Wnt";
+
+const BASE_URL = "https://test.api.amadeus.com";
+
+// Dados de aeroportos para datalist
 const DEFAULT_AIRPORTS = [
   {iata:"GRU", cidade:"São Paulo"}, {iata:"GIG", cidade:"Rio de Janeiro"},
   {iata:"CGH", cidade:"São Paulo"}, {iata:"CNF", cidade:"Belo Horizonte"},
@@ -73,75 +73,140 @@ const DEFAULT_AIRPORTS = [
   {iata:"EZE", cidade:"Buenos Aires"}, {iata:"MDZ", cidade:"Mendoza"}
 ];
 
-// Voos mock (preços realistas)
-const mockFlights = [
-  {airline:"LATAM", dep:"22:50", arr:"07:40", duration:"13h 00min", stops:"Direto", price:6462},
-  {airline:"GOL", dep:"23:50", arr:"13:20", duration:"13h 30min", stops:"1 escala", price:5795},
-  {airline:"TAP Air Portugal", dep:"18:40", arr:"07:55", duration:"13h 15min", stops:"Direto", price:6319},
-  {airline:"Emirates", dep:"01:20", arr:"18:45", duration:"18h 25min", stops:"1 escala", price:7291},
-  {airline:"Iberia", dep:"20:45", arr:"12:10", duration:"15h 25min", stops:"1 escala", price:6420}
-];
+let accessToken = null;
+
+async function getAccessToken() {
+  const response = await fetch(`${BASE_URL}/v1/security/oauth2/token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: AMADEUS_API_KEY,
+      client_secret: AMADEUS_API_SECRET
+    })
+  });
+
+  if (!response.ok) throw new Error("Falha ao obter token da Amadeus");
+  const data = await response.json();
+  accessToken = data.access_token;
+  return accessToken;
+}
 
 function populateDatalists() {
   const originList = document.getElementById("origin-list");
   const destList = document.getElementById("destination-list");
   DEFAULT_AIRPORTS.forEach(a => {
     const opt = document.createElement("option");
-    opt.value = a.iata + " - " + a.cidade;
+    opt.value = `${a.iata} - ${a.cidade}`;
     originList.appendChild(opt);
     destList.appendChild(opt.cloneNode(true));
   });
 }
 
-function buscar(e) {
-  e.preventDefault();
+async function buscar(e) {
+  if (e) e.preventDefault();
 
-  // Lê os valores ATUALIZADOS do formulário
-  let originInput = document.getElementById("origin").value.trim().split(" - ")[0] || "GRU";
-  let destinationInput = document.getElementById("destination").value.trim().split(" - ")[0] || "JFK";
+  const originInput = document.getElementById("origin").value.trim().split(" - ")[0] || "GRU";
+  const destinationInput = document.getElementById("destination").value.trim().split(" - ")[0] || "JFK";
+  const depDate = document.getElementById("departure").value;
+  const retDate = document.getElementById("return").value;
 
-  // Atualiza cabeçalho
-  document.getElementById("header").innerHTML = `
-    Resultados para <span class="text-emerald-600">${originInput}</span> → <span class="text-emerald-600">${destinationInput}</span>
-  `;
-
+  const btn = document.getElementById("search-btn");
   const container = document.getElementById("results");
-  container.innerHTML = "";
 
-  // Gera os cards com o link do Kiwi.com ATUALIZADO
-  mockFlights.forEach(flight => {
-    const kiwiLink = `https://www.kiwi.com/br/search/results/${originInput}-${destinationInput}/2026-04-15/2026-04-22`;
-    container.innerHTML += `
-      <div class="card-hover bg-white border border-orange-100 rounded-3xl p-8 grid grid-cols-12 items-center gap-8 shadow-md">
-        <div class="col-span-2 flex items-center gap-4">
-          <span class="text-5xl">✈️</span>
-          <div class="font-bold text-2xl">${flight.airline}</div>
-        </div>
-        <div class="col-span-4 flex justify-between text-2xl font-medium">
-          <div>${flight.dep}</div>
-          <div class="text-center text-emerald-500">${flight.duration}<br><span class="text-sm">${flight.stops}</span></div>
-          <div>${flight.arr}</div>
-        </div>
-        <div class="col-span-3 text-center">
-          <div class="text-5xl font-bold text-emerald-600">R$ ${flight.price}</div>
-        </div>
-        <div class="col-span-3 flex flex-col gap-4">
-          <a href="${kiwiLink}" target="_blank" 
-             class="bg-orange-500 text-white text-center py-5 rounded-3xl font-semibold text-lg">Comprar no Kiwi.com</a>
-          <button onclick="enviarAlerta()" class="border-2 border-emerald-500 text-emerald-600 py-5 rounded-3xl font-semibold">Alerta WhatsApp</button>
-        </div>
-      </div>`;
-  });
+  btn.disabled = true;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Buscando na Amadeus...`;
+  container.innerHTML = `<div class="text-center py-12 text-gray-500">Conectando à Amadeus API...</div>`;
+
+  try {
+    if (!accessToken) await getAccessToken();
+
+    let url = `${BASE_URL}/v2/shopping/flight-offers?originLocationCode=${originInput}&destinationLocationCode=${destinationInput}&departureDate=${depDate}&adults=1&max=10&currencyCode=BRL`;
+
+    if (retDate) url += `&returnDate=${retDate}`;
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    if (!response.ok) throw new Error(`Erro da Amadeus: ${response.status}`);
+
+    const data = await response.json();
+    const flights = data.data || [];
+
+    // Header
+    document.getElementById("header").innerHTML = `
+      Voos reais de <span class="text-emerald-600">${originInput}</span> 
+      para <span class="text-emerald-600">${destinationInput}</span> 
+      <span class="text-xl text-gray-500 ml-4">${depDate}${retDate ? ' ↔ ' + retDate : ''}</span>
+    `;
+
+    container.innerHTML = "";
+
+    if (flights.length === 0) {
+      container.innerHTML = `<div class="text-center py-12 text-orange-600">Nenhum voo encontrado para esta rota/data na Amadeus (ambiente de teste).</div>`;
+      return;
+    }
+
+    flights.forEach(offer => {
+      const price = offer.price?.total || "N/A";
+      const currency = offer.price?.currency || "BRL";
+      const itinerary = offer.itineraries[0] || {};
+      const segments = itinerary.segments || [];
+      const firstSegment = segments[0] || {};
+      const lastSegment = segments[segments.length - 1] || {};
+
+      const depTime = firstSegment.departure?.at ? firstSegment.departure.at.substring(11,16) : "--:--";
+      const arrTime = lastSegment.arrival?.at ? lastSegment.arrival.at.substring(11,16) : "--:--";
+      const duration = itinerary.duration ? itinerary.duration.replace("PT", "").replace("H", "h ").replace("M", "min") : "N/A";
+      const stops = segments.length > 1 ? `${segments.length - 1} escala(s)` : "Direto";
+
+      container.innerHTML += `
+        <div class="card-hover bg-white border border-orange-100 rounded-3xl p-8 grid grid-cols-12 items-center gap-8 shadow-md">
+          <div class="col-span-2 flex items-center gap-4">
+            <span class="text-5xl">✈️</span>
+            <div>
+              <div class="font-bold text-2xl">${offer.validatingAirlineCodes ? offer.validatingAirlineCodes[0] : 'Companhia'}</div>
+            </div>
+          </div>
+          <div class="col-span-4 flex justify-between text-2xl font-medium">
+            <div>${depTime}</div>
+            <div class="text-center text-emerald-500">${duration}<br><span class="text-sm">${stops}</span></div>
+            <div>${arrTime}</div>
+          </div>
+          <div class="col-span-3 text-center">
+            <div class="text-5xl font-bold text-emerald-600">R$ ${parseFloat(price).toFixed(0)}</div>
+            <div class="text-sm text-gray-500">${currency}</div>
+          </div>
+          <div class="col-span-3 flex flex-col gap-4">
+            <a href="https://www.kiwi.com/br/search/results/${originInput}-${destinationInput}/${depDate}/${retDate || ''}" 
+               target="_blank" 
+               class="bg-orange-500 text-white text-center py-5 rounded-3xl font-semibold text-lg hover:bg-orange-600 transition">
+              Ver no Kiwi.com
+            </a>
+            <button onclick="enviarAlerta()" class="border-2 border-emerald-500 text-emerald-600 py-5 rounded-3xl font-semibold hover:bg-emerald-50 transition">
+              Alerta WhatsApp
+            </button>
+          </div>
+        </div>`;
+    });
+
+  } catch (error) {
+    console.error(error);
+    container.innerHTML = `<div class="text-center py-12 text-red-600">Erro ao buscar voos: ${error.message}<br><br>Verifique sua conexão ou se as credenciais estão corretas.</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> BUSCAR`;
+  }
 }
 
 function enviarAlerta() {
   window.open("https://wa.me/5514998370223?text=🚨 Alerta VooFácil - Quero alerta de preço!", "_blank");
 }
 
-// Inicializar
 window.onload = () => {
   populateDatalists();
-  buscar({preventDefault: () => {}});
+  buscar(null); // busca inicial
 };
 </script>
 </body>
