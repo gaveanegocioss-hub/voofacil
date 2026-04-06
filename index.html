@@ -35,7 +35,7 @@
     </div>
     <div class="md:col-span-3">
       <label class="block text-xs font-medium text-gray-500 mb-1">PARA ONDE?</label>
-      <input id="destination" list="destination-list" type="text" value="FCO" class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
+      <input id="destination" list="destination-list" type="text" value="MIA" class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
       <datalist id="destination-list"></datalist>
     </div>
     <div class="md:col-span-2">
@@ -91,7 +91,7 @@ async function buscar(e) {
   if (e) e.preventDefault();
 
   const origin = document.getElementById("origin").value.trim().split(" - ")[0] || "GRU";
-  const destination = document.getElementById("destination").value.trim().split(" - ")[0] || "FCO";
+  const destination = document.getElementById("destination").value.trim().split(" - ")[0] || "MIA";
   const depDate = document.getElementById("departure").value;
   const retDate = document.getElementById("return").value;
 
@@ -99,8 +99,8 @@ async function buscar(e) {
   const container = document.getElementById("results");
 
   btn.disabled = true;
-  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Buscando no Google Flights...`;
-  container.innerHTML = `<div class="text-center py-12 text-gray-500">Conectando ao Google Flights...</div>`;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Buscando...`;
+  container.innerHTML = `<div class="text-center py-12 text-gray-500">Buscando voos reais no Google Flights...</div>`;
 
   try {
     let url = `https://serpapi.com/search.json?engine=google_flights&departure_id=${origin}&arrival_id=${destination}&outbound_date=${depDate}&currency=BRL&hl=pt-BR&gl=BR`;
@@ -108,6 +108,9 @@ async function buscar(e) {
     if (retDate) url += `&return_date=${retDate}`;
 
     const response = await fetch(url + `&api_key=${SERPAPI_KEY}`);
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
     const data = await response.json();
 
     document.getElementById("header").innerHTML = `
@@ -117,24 +120,23 @@ async function buscar(e) {
 
     container.innerHTML = "";
 
-    const flights = data.best_flights || data.flights || [];
+    const flights = data.best_flights || data.flights || data.other_flights || [];
 
     if (flights.length === 0) {
-      container.innerHTML = `<div class="text-center py-16 text-orange-600">Nenhum voo encontrado para esta rota/data.<br>Tente outras combinações.</div>`;
+      container.innerHTML = `<div class="text-center py-16 text-orange-600">Nenhum voo encontrado para esta rota/data no momento.<br>Tente outra rota ou data mais próxima.</div>`;
       return;
     }
 
     flights.forEach(flight => {
       const price = flight.price || "—";
-      const airline = flight.airline || (flight.flights && flight.flights[0] ? flight.flights[0].airline : "Companhia");
-      const depTime = flight.departure_time || (flight.flights && flight.flights[0] ? flight.flights[0].departure_time : "—");
-      const arrTime = flight.arrival_time || (flight.flights && flight.flights[0] ? flight.flights[0].arrival_time : "—");
+      const airline = flight.airline || (flight.flights && flight.flights[0]?.airline) || "Companhia";
+      const depTime = flight.departure_time || (flight.flights && flight.flights[0]?.departure_time) || "—";
+      const arrTime = flight.arrival_time || (flight.flights && flight.flights[0]?.arrival_time) || "—";
       const duration = flight.duration || "—";
-      const stops = flight.stops !== undefined ? (flight.stops === 0 ? "Direto" : flight.stops + " escala(s)") : "—";
+      const stops = flight.stops !== undefined ? (flight.stops === 0 ? "Direto" : `${flight.stops} escala(s)`) : "—";
 
-      // Links
       const kiwiLink = `https://www.kiwi.com/br/search/results/${origin}-${destination}/${depDate.replace(/-/g,'')}/${retDate ? retDate.replace(/-/g,'') : ''}`;
-      const googleLink = `https://www.google.com/travel/flights?hl=pt-BR&gl=BR#flt=${origin}.${destination}.${depDate}${retDate ? '*' + retDate : ''}`;
+      const googleLink = `https://www.google.com/travel/flights?q=Flights%20to%20${destination}%20from%20${origin}%20on%20${depDate}${retDate ? `%20through%20${retDate}` : ''}`;
 
       container.innerHTML += `
         <div class="card-hover bg-white border border-orange-100 rounded-3xl p-8 grid grid-cols-12 items-center gap-8 shadow-md">
@@ -155,16 +157,13 @@ async function buscar(e) {
             <div class="text-xs text-gray-500">por pessoa</div>
           </div>
           <div class="col-span-3 flex flex-col gap-3">
-            <a href="${kiwiLink}" target="_blank" 
-               class="bg-orange-500 hover:bg-orange-600 text-white text-center py-4 rounded-3xl font-semibold text-lg transition">
+            <a href="${kiwiLink}" target="_blank" class="bg-orange-500 hover:bg-orange-600 text-white text-center py-4 rounded-3xl font-semibold text-lg transition">
               Comprar no Kiwi.com
             </a>
-            <a href="${googleLink}" target="_blank" 
-               class="border border-gray-300 hover:bg-gray-50 text-gray-700 text-center py-3 rounded-3xl font-medium text-sm transition flex items-center justify-center gap-2">
+            <a href="${googleLink}" target="_blank" class="border border-gray-300 hover:bg-gray-50 text-gray-700 text-center py-3 rounded-3xl font-medium text-sm transition flex items-center justify-center gap-2">
               <i class="fa-solid fa-external-link-alt"></i> Ver no Google Flights
             </a>
-            <button onclick="enviarAlerta()" 
-                    class="border-2 border-emerald-500 text-emerald-600 py-3 rounded-3xl font-semibold hover:bg-emerald-50 transition">
+            <button onclick="enviarAlerta()" class="border-2 border-emerald-500 text-emerald-600 py-3 rounded-3xl font-semibold hover:bg-emerald-50 transition">
               Alerta WhatsApp
             </button>
           </div>
@@ -172,9 +171,10 @@ async function buscar(e) {
     });
 
   } catch (error) {
+    console.error(error);
     container.innerHTML = `<div class="text-center py-12 text-red-600">
       Erro ao buscar voos: ${error.message}<br><br>
-      Verifique sua conexão ou se a chave SerpApi ainda é válida.
+      Verifique sua conexão com a internet ou se a chave SerpApi ainda é válida.
     </div>`;
   } finally {
     btn.disabled = false;
