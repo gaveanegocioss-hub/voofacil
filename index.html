@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VooFácil - Passagens Aéreas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-4px); }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-10">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-3xl">✈️</div>
+        <h1 class="text-4xl font-bold">VooFácil</h1>
+      </div>
+      <a href="https://wa.me/5514998370223" target="_blank" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 px-6 py-3 rounded-3xl text-white font-medium">
+        <i class="fa-brands fa-whatsapp"></i> Fale conosco
+      </a>
+    </div>
+
+    <!-- Formulário -->
+    <form onsubmit="buscar(event)" class="bg-zinc-900 rounded-3xl p-8 mb-10 grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div class="md:col-span-3">
+        <label class="block text-xs font-medium text-zinc-400 mb-1">DE ONDE?</label>
+        <input id="origin" type="text" value="GRU" placeholder="ex: GRU, São Paulo, LIS" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5 text-lg focus:border-emerald-400 outline-none">
+      </div>
+      <div class="md:col-span-3">
+        <label class="block text-xs font-medium text-zinc-400 mb-1">PARA ONDE?</label>
+        <input id="destination" type="text" value="JFK" placeholder="ex: JFK, Nova York, LIS" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5 text-lg focus:border-emerald-400 outline-none">
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-xs font-medium text-zinc-400 mb-1">IDA</label>
+        <input type="date" id="departure" value="2026-04-15" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5">
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-xs font-medium text-zinc-400 mb-1">VOLTA</label>
+        <input type="date" id="return" value="2026-04-22" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5">
+      </div>
+      <div class="md:col-span-2 flex items-end">
+        <button type="submit" class="w-full h-14 bg-emerald-500 hover:bg-emerald-600 rounded-3xl font-semibold text-lg flex items-center justify-center gap-3">
+          <i class="fa-solid fa-magnifying-glass"></i> BUSCAR
+        </button>
+      </div>
+    </form>
+
+    <!-- Cabeçalho -->
+    <div id="header" class="text-emerald-400 text-2xl font-medium mb-6"></div>
+
+    <!-- Resultados -->
+    <div id="results" class="space-y-6"></div>
+  </div>
+
+  <script>
+    const voos = [
+      {airline:"LATAM", dep:"22:50", arr:"07:40", duration:"13h 00min", stops:"Direto", price:6462},
+      {airline:"GOL", dep:"23:50", arr:"13:20", duration:"13h 30min", stops:"1 escala", price:5795},
+      {airline:"TAP Air Portugal", dep:"18:40", arr:"07:55", duration:"13h 15min", stops:"Direto", price:6319},
+      {airline:"Emirates", dep:"01:20", arr:"18:45", duration:"18h 25min", stops:"1 escala", price:7291},
+      {airline:"American Airlines", dep:"19:15", arr:"06:30", duration:"11h 15min", stops:"1 escala", price:5962},
+      {airline:"Iberia", dep:"20:45", arr:"12:10", duration:"15h 25min", stops:"1 escala", price:6420},
+      {airline:"Qatar Airways", dep:"02:10", arr:"20:55", duration:"18h 45min", stops:"1 escala", price:6890},
+      {airline:"Delta", dep:"21:30", arr:"08:15", duration:"12h 45min", stops:"1 escala", price:6120},
+      {airline:"United", dep:"22:00", arr:"07:50", duration:"13h 50min", stops:"1 escala", price:5780},
+      {airline:"Air France", dep:"23:10", arr:"14:30", duration:"15h 20min", stops:"2 escalas", price:6590},
+      {airline:"British Airways", dep:"19:55", arr:"11:40", duration:"15h 45min", stops:"2 escalas", price:6820},
+      {airline:"Swiss", dep:"20:15", arr:"13:05", duration:"16h 50min", stops:"1 escala", price:7010}
+    ];
+
+    function buscar(e) {
+      e.preventDefault();
+      const origin = document.getElementById("origin").value.trim().toUpperCase() || "GRU";
+      const destination = document.getElementById("destination").value.trim().toUpperCase() || "JFK";
+
+      document.getElementById("header").innerHTML = `Resultados para <span class="font-semibold">${origin}</span> → <span class="font-semibold">${destination}</span>`;
+
+      const container = document.getElementById("results");
+      container.innerHTML = "";
+
+      voos.forEach(v => {
+        container.innerHTML += `
+          <div class="card-hover bg-white/5 border border-white/10 rounded-3xl p-6 grid grid-cols-12 gap-6 items-center">
+            <div class="col-span-2 flex items-center gap-4">
+              <span class="text-5xl">✈️</span>
+              <div class="font-semibold text-xl">${v.airline}</div>
+            </div>
+            <div class="col-span-4 flex justify-between items-center text-xl">
+              <div>${v.dep}</div>
+              <div class="text-center text-emerald-400">${v.duration}<br>${v.stops}</div>
+              <div>${v.arr}</div>
+            </div>
+            <div class="col-span-3 text-center">
+              <div class="text-4xl font-bold text-emerald-400">R$ ${v.price}</div>
+            </div>
+            <div class="col-span-3 flex flex-col gap-3">
+              <a href="https://www.kiwi.com/br/search/results/${origin}-${destination}/2026-04-15/2026-04-22" target="_blank" class="bg-white text-zinc-900 text-center py-4 rounded-3xl font-semibold">Comprar no Kiwi.com</a>
+              <button onclick="enviarAlerta()" class="border border-emerald-400 text-emerald-400 py-4 rounded-3xl font-semibold">Alerta WhatsApp</button>
+            </div>
+          </div>`;
+      });
+    }
+
+    function enviarAlerta() {
+      window.open("https://wa.me/5514998370223?text=🚨%20Alerta%20VooFácil%20-%20Preço%20caiu!", "_blank");
+    }
+
+    window.onload = () => buscar({preventDefault: () => {}});
+  </script>
+</body>
+</html>
