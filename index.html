@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VooFácil -01Buscador de Aeroportos</title>
+  <title>VooFácil - v10 - Kiwi Atualizado</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
@@ -62,7 +62,7 @@
 </div>
 
 <script>
-// ==================== LISTA DE AEROPORTOS ====================
+// Lista de aeroportos
 const DEFAULT_AIRPORTS = [
   {iata:"GRU", cidade:"São Paulo"}, {iata:"GIG", cidade:"Rio de Janeiro"},
   {iata:"CGH", cidade:"São Paulo"}, {iata:"CNF", cidade:"Belo Horizonte"},
@@ -73,7 +73,7 @@ const DEFAULT_AIRPORTS = [
   {iata:"EZE", cidade:"Buenos Aires"}, {iata:"MDZ", cidade:"Mendoza"}
 ];
 
-// ==================== MOCK DE VOOS (agora mais dinâmico) ====================
+// Voos mock (preços realistas)
 const mockFlights = [
   {airline:"LATAM", dep:"22:50", arr:"07:40", duration:"13h 00min", stops:"Direto", price:6462},
   {airline:"GOL", dep:"23:50", arr:"13:20", duration:"13h 30min", stops:"1 escala", price:5795},
@@ -85,7 +85,6 @@ const mockFlights = [
 function populateDatalists() {
   const originList = document.getElementById("origin-list");
   const destList = document.getElementById("destination-list");
-  
   DEFAULT_AIRPORTS.forEach(a => {
     const opt = document.createElement("option");
     opt.value = a.iata + " - " + a.cidade;
@@ -97,21 +96,21 @@ function populateDatalists() {
 function buscar(e) {
   e.preventDefault();
 
-  // Lê os valores digitados
+  // Lê os valores ATUALIZADOS do formulário
   let originInput = document.getElementById("origin").value.trim().split(" - ")[0] || "GRU";
   let destinationInput = document.getElementById("destination").value.trim().split(" - ")[0] || "JFK";
 
-  // Atualiza o cabeçalho
+  // Atualiza cabeçalho
   document.getElementById("header").innerHTML = `
     Resultados para <span class="text-emerald-600">${originInput}</span> → <span class="text-emerald-600">${destinationInput}</span>
   `;
 
-  // Limpa os resultados antigos
   const container = document.getElementById("results");
   container.innerHTML = "";
 
-  // Gera os voos (sempre atualiza)
+  // Gera os cards com o link do Kiwi.com ATUALIZADO
   mockFlights.forEach(flight => {
+    const kiwiLink = `https://www.kiwi.com/br/search/results/${originInput}-${destinationInput}/2026-04-15/2026-04-22`;
     container.innerHTML += `
       <div class="card-hover bg-white border border-orange-100 rounded-3xl p-8 grid grid-cols-12 items-center gap-8 shadow-md">
         <div class="col-span-2 flex items-center gap-4">
@@ -120,17 +119,14 @@ function buscar(e) {
         </div>
         <div class="col-span-4 flex justify-between text-2xl font-medium">
           <div>${flight.dep}</div>
-          <div class="text-center text-emerald-500">
-            ${flight.duration}<br>
-            <span class="text-sm">${flight.stops}</span>
-          </div>
+          <div class="text-center text-emerald-500">${flight.duration}<br><span class="text-sm">${flight.stops}</span></div>
           <div>${flight.arr}</div>
         </div>
         <div class="col-span-3 text-center">
           <div class="text-5xl font-bold text-emerald-600">R$ ${flight.price}</div>
         </div>
         <div class="col-span-3 flex flex-col gap-4">
-          <a href="https://www.kiwi.com/br/search/results/${originInput}-${destinationInput}/2026-04-15/2026-04-22" target="_blank" 
+          <a href="${kiwiLink}" target="_blank" 
              class="bg-orange-500 text-white text-center py-5 rounded-3xl font-semibold text-lg">Comprar no Kiwi.com</a>
           <button onclick="enviarAlerta()" class="border-2 border-emerald-500 text-emerald-600 py-5 rounded-3xl font-semibold">Alerta WhatsApp</button>
         </div>
@@ -139,7 +135,7 @@ function buscar(e) {
 }
 
 function enviarAlerta() {
-  window.open("https://wa.me/5514998370223?text=🚨%20Alerta%20VooFácil%20-%20Quero%20alerta%20de%20preço!", "_blank");
+  window.open("https://wa.me/5514998370223?text=🚨 Alerta VooFácil - Quero alerta de preço!", "_blank");
 }
 
 // Inicializar
