@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VooFácil - Buscador de Aeroportos</title>
+  <title>VooFácil -01Buscador de Aeroportos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
@@ -34,7 +34,7 @@
 
     <div class="md:col-span-3">
       <label class="block text-xs font-medium text-gray-500 mb-1">PARA ONDE?</label>
-      <input id="destination" list="destination-list" type="text" value="JFK" placeholder="Digite JFK, Lisboa, MIA..." 
+      <input id="destination" list="destination-list" type="text" value="JFK" placeholder="Digite JFK, Lisboa, CGH..." 
              class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
       <datalist id="destination-list"></datalist>
     </div>
@@ -62,27 +62,18 @@
 </div>
 
 <script>
-// ==================== DADOS DO REACT (do arquivo que você enviou) ====================
+// ==================== LISTA DE AEROPORTOS ====================
 const DEFAULT_AIRPORTS = [
-  {iata:"GRU", cidade:"São Paulo", nome:"Aeroporto Internacional de Guarulhos"},
-  {iata:"GIG", cidade:"Rio de Janeiro", nome:"Aeroporto Internacional do Galeão"},
-  {iata:"BSB", cidade:"Brasília", nome:"Aeroporto Internacional de Brasília"},
-  {iata:"CGH", cidade:"São Paulo", nome:"Aeroporto de Congonhas"},
-  {iata:"CNF", cidade:"Belo Horizonte", nome:"Aeroporto Internacional de Confins"},
-  {iata:"SSA", cidade:"Salvador", nome:"Aeroporto Internacional de Salvador"},
-  {iata:"FOR", cidade:"Fortaleza", nome:"Aeroporto Internacional de Fortaleza"},
-  {iata:"REC", cidade:"Recife", nome:"Aeroporto Internacional do Recife"},
-  {iata:"LIS", cidade:"Lisboa", nome:"Aeroporto Humberto Delgado"},
-  {iata:"JFK", cidade:"Nova York", nome:"John F. Kennedy International Airport"},
-  {iata:"MIA", cidade:"Miami", nome:"Miami International Airport"},
-  {iata:"CDG", cidade:"Paris", nome:"Charles de Gaulle Airport"},
-  {iata:"LHR", cidade:"Londres", nome:"Heathrow Airport"},
-  {iata:"MAD", cidade:"Madrid", nome:"Adolfo Suárez Madrid–Barajas Airport"},
-  {iata:"EZE", cidade:"Buenos Aires", nome:"Aeropuerto Internacional Ezeiza"},
-  {iata:"MDZ", cidade:"Mendoza", nome:"El Plumerillo Airport"}
+  {iata:"GRU", cidade:"São Paulo"}, {iata:"GIG", cidade:"Rio de Janeiro"},
+  {iata:"CGH", cidade:"São Paulo"}, {iata:"CNF", cidade:"Belo Horizonte"},
+  {iata:"FOR", cidade:"Fortaleza"}, {iata:"REC", cidade:"Recife"},
+  {iata:"LIS", cidade:"Lisboa"}, {iata:"JFK", cidade:"Nova York"},
+  {iata:"MIA", cidade:"Miami"}, {iata:"CDG", cidade:"Paris"},
+  {iata:"LHR", cidade:"Londres"}, {iata:"MAD", cidade:"Madrid"},
+  {iata:"EZE", cidade:"Buenos Aires"}, {iata:"MDZ", cidade:"Mendoza"}
 ];
 
-// Mock de voos (realista)
+// ==================== MOCK DE VOOS (agora mais dinâmico) ====================
 const mockFlights = [
   {airline:"LATAM", dep:"22:50", arr:"07:40", duration:"13h 00min", stops:"Direto", price:6462},
   {airline:"GOL", dep:"23:50", arr:"13:20", duration:"13h 30min", stops:"1 escala", price:5795},
@@ -95,37 +86,37 @@ function populateDatalists() {
   const originList = document.getElementById("origin-list");
   const destList = document.getElementById("destination-list");
   
-  DEFAULT_AIRPORTS.forEach(airport => {
-    const option1 = document.createElement("option");
-    option1.value = airport.iata + " - " + airport.cidade;
-    originList.appendChild(option1);
-
-    const option2 = option1.cloneNode(true);
-    destList.appendChild(option2);
+  DEFAULT_AIRPORTS.forEach(a => {
+    const opt = document.createElement("option");
+    opt.value = a.iata + " - " + a.cidade;
+    originList.appendChild(opt);
+    destList.appendChild(opt.cloneNode(true));
   });
 }
 
 function buscar(e) {
   e.preventDefault();
 
-  let originInput = document.getElementById("origin").value.trim().toUpperCase().split(" - ")[0] || "GRU";
-  let destinationInput = document.getElementById("destination").value.trim().toUpperCase().split(" - ")[0] || "JFK";
+  // Lê os valores digitados
+  let originInput = document.getElementById("origin").value.trim().split(" - ")[0] || "GRU";
+  let destinationInput = document.getElementById("destination").value.trim().split(" - ")[0] || "JFK";
 
+  // Atualiza o cabeçalho
   document.getElementById("header").innerHTML = `
     Resultados para <span class="text-emerald-600">${originInput}</span> → <span class="text-emerald-600">${destinationInput}</span>
   `;
 
+  // Limpa os resultados antigos
   const container = document.getElementById("results");
   container.innerHTML = "";
 
+  // Gera os voos (sempre atualiza)
   mockFlights.forEach(flight => {
     container.innerHTML += `
       <div class="card-hover bg-white border border-orange-100 rounded-3xl p-8 grid grid-cols-12 items-center gap-8 shadow-md">
         <div class="col-span-2 flex items-center gap-4">
           <span class="text-5xl">✈️</span>
-          <div>
-            <div class="font-bold text-2xl">${flight.airline}</div>
-          </div>
+          <div class="font-bold text-2xl">${flight.airline}</div>
         </div>
         <div class="col-span-4 flex justify-between text-2xl font-medium">
           <div>${flight.dep}</div>
