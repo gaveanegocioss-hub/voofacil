@@ -3,113 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>voofacil-teste atual01</title>
+  <title>VooFácil - Buscador de Aeroportos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+    h1, h2 { font-family: 'Playfair Display', serif; }
     .card-hover:hover { transform: translateY(-4px); }
   </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
+<body class="bg-gradient-to-b from-yellow-50 to-white min-h-screen">
 
-  <div class="max-w-7xl mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-10">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-3xl">✈️</div>
-        <h1 class="text-4xl font-bold">VooFácil</h1>
-      </div>
+<div class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-10">
+    <div class="flex items-center gap-3">
+      <div class="text-4xl">✈️</div>
+      <h1 class="text-5xl font-bold text-orange-500">VooFácil</h1>
     </div>
-
-    <!-- FORMULÁRIO -->
-    <form onsubmit="buscar(event)" class="bg-zinc-900 rounded-3xl p-8 mb-10 grid grid-cols-1 md:grid-cols-12 gap-6">
-      <div class="md:col-span-3">
-        <label class="block text-xs font-medium text-zinc-400 mb-1">DE ONDE?</label>
-        <input id="origin" type="text" value="GRU" placeholder="ex: GRU, São Paulo, LIS" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5 text-lg focus:border-emerald-400 outline-none">
-      </div>
-      <div class="md:col-span-3">
-        <label class="block text-xs font-medium text-zinc-400 mb-1">PARA ONDE?</label>
-        <input id="destination" type="text" value="JFK" placeholder="ex: JFK, Nova York, LIS, Lisboa" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5 text-lg focus:border-emerald-400 outline-none">
-      </div>
-      <div class="md:col-span-2">
-        <label class="block text-xs font-medium text-zinc-400 mb-1">IDA</label>
-        <input type="date" id="departure" value="2026-04-15" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5">
-      </div>
-      <div class="md:col-span-2">
-        <label class="block text-xs font-medium text-zinc-400 mb-1">VOLTA</label>
-        <input type="date" id="return" value="2026-04-22" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-5">
-      </div>
-      <div class="md:col-span-2 flex items-end">
-        <button type="submit" class="w-full h-14 bg-emerald-500 hover:bg-emerald-600 rounded-3xl font-semibold text-lg flex items-center justify-center gap-3">
-          <i class="fa-solid fa-magnifying-glass"></i> BUSCAR
-        </button>
-      </div>
-    </form>
-
-    <!-- CABEÇALHO -->
-    <div id="header" class="text-emerald-400 text-2xl font-medium mb-6"></div>
-
-    <!-- RESULTADOS -->
-    <div id="results" class="space-y-6"></div>
   </div>
 
-  <script>
-    const voos = [
-      {airline:"LATAM", dep:"22:50", arr:"07:40", duration:"13h 00min", stops:"Direto", price:6462},
-      {airline:"GOL", dep:"23:50", arr:"13:20", duration:"13h 30min", stops:"1 escala", price:5795},
-      {airline:"TAP Air Portugal", dep:"18:40", arr:"07:55", duration:"13h 15min", stops:"Direto", price:6319},
-      {airline:"Emirates", dep:"01:20", arr:"18:45", duration:"18h 25min", stops:"1 escala", price:7291},
-      {airline:"American Airlines", dep:"19:15", arr:"06:30", duration:"11h 15min", stops:"1 escala", price:5962},
-      {airline:"Iberia", dep:"20:45", arr:"12:10", duration:"15h 25min", stops:"1 escala", price:6420},
-      {airline:"Qatar Airways", dep:"02:10", arr:"20:55", duration:"18h 45min", stops:"1 escala", price:6890},
-      {airline:"Delta", dep:"21:30", arr:"08:15", duration:"12h 45min", stops:"1 escala", price:6120},
-      {airline:"United", dep:"22:00", arr:"07:50", duration:"13h 50min", stops:"1 escala", price:5780},
-      {airline:"Air France", dep:"23:10", arr:"14:30", duration:"15h 20min", stops:"2 escalas", price:6590},
-      {airline:"British Airways", dep:"19:55", arr:"11:40", duration:"15h 45min", stops:"2 escalas", price:6820},
-      {airline:"Swiss", dep:"20:15", arr:"13:05", duration:"16h 50min", stops:"1 escala", price:7010}
-    ];
+  <!-- FORMULÁRIO -->
+  <form onsubmit="buscar(event)" class="bg-white shadow-xl rounded-3xl p-8 grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
+    <div class="md:col-span-3">
+      <label class="block text-xs font-medium text-gray-500 mb-1">DE ONDE?</label>
+      <input id="origin" list="origin-list" type="text" value="GRU" placeholder="Digite GRU, São Paulo, LIS..." 
+             class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
+      <datalist id="origin-list"></datalist>
+    </div>
 
-    function buscar(e) {
-      e.preventDefault();
+    <div class="md:col-span-3">
+      <label class="block text-xs font-medium text-gray-500 mb-1">PARA ONDE?</label>
+      <input id="destination" list="destination-list" type="text" value="JFK" placeholder="Digite JFK, Lisboa, MIA..." 
+             class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
+      <datalist id="destination-list"></datalist>
+    </div>
 
-      const origin = document.getElementById("origin").value.trim().toUpperCase() || "GRU";
-      const destination = document.getElementById("destination").value.trim().toUpperCase() || "JFK";
+    <div class="md:col-span-2">
+      <label class="block text-xs font-medium text-gray-500 mb-1">IDA</label>
+      <input type="date" id="departure" value="2026-04-15" class="w-full px-6 py-5 border-2 border-emerald-200 rounded-3xl">
+    </div>
 
-      document.getElementById("header").innerHTML = `Resultados para <span class="font-semibold">${origin}</span> → <span class="font-semibold">${destination}</span>`;
+    <div class="md:col-span-2">
+      <label class="block text-xs font-medium text-gray-500 mb-1">VOLTA</label>
+      <input type="date" id="return" value="2026-04-22" class="w-full px-6 py-5 border-2 border-emerald-200 rounded-3xl">
+    </div>
 
-      const container = document.getElementById("results");
-      container.innerHTML = "";
+    <div class="md:col-span-2 flex items-end">
+      <button type="submit" class="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xl rounded-3xl flex items-center justify-center gap-3">
+        <i class="fa-solid fa-magnifying-glass"></i> BUSCAR
+      </button>
+    </div>
+  </form>
 
-      voos.forEach(v => {
-        container.innerHTML += `
-          <div class="card-hover bg-white/5 border border-white/10 rounded-3xl p-6 grid grid-cols-12 gap-6 items-center">
-            <div class="col-span-2 flex items-center gap-4">
-              <span class="text-5xl">✈️</span>
-              <div class="font-semibold text-xl">${v.airline}</div>
-            </div>
-            <div class="col-span-4 flex justify-between items-center text-xl">
-              <div>${v.dep}</div>
-              <div class="text-center text-emerald-400">${v.duration}<br>${v.stops}</div>
-              <div>${v.arr}</div>
-            </div>
-            <div class="col-span-3 text-center">
-              <div class="text-4xl font-bold text-emerald-400">R$ ${v.price}</div>
-            </div>
-            <div class="col-span-3 flex flex-col gap-3">
-              <a href="https://www.kiwi.com/br/search/results/${origin}-${destination}/2026-04-15/2026-04-22" target="_blank" class="bg-white text-zinc-900 text-center py-4 rounded-3xl font-semibold">Comprar no Kiwi.com</a>
-              <button onclick="enviarAlerta()" class="border border-emerald-400 text-emerald-400 py-4 rounded-3xl font-semibold">Alerta WhatsApp</button>
-            </div>
-          </div>`;
-      });
-    }
+  <!-- RESULTADOS -->
+  <div id="header" class="text-3xl font-bold text-orange-600 mb-6"></div>
+  <div id="results" class="space-y-8"></div>
+</div>
 
-    function enviarAlerta() {
-      window.open("https://wa.me/5514998370223?text=🚨%20Alerta%20VooFácil%20-%20Preço%20caiu!", "_blank");
-    }
+<script>
+// ==================== DADOS DO REACT (do arquivo que você enviou) ====================
+const DEFAULT_AIRPORTS = [
+  {iata:"GRU", cidade:"São Paulo", nome:"Aeroporto Internacional de Guarulhos"},
+  {iata:"GIG", cidade:"Rio de Janeiro", nome:"Aeroporto Internacional do Galeão"},
+  {iata:"BSB", cidade:"Brasília", nome:"Aeroporto Internacional de Brasília"},
+  {iata:"CGH", cidade:"São Paulo", nome:"Aeroporto de Congonhas"},
+  {iata:"CNF", cidade:"Belo Horizonte", nome:"Aeroporto Internacional de Confins"},
+  {iata:"SSA", cidade:"Salvador", nome:"Aeroporto Internacional de Salvador"},
+  {iata:"FOR", cidade:"Fortaleza", nome:"Aeroporto Internacional de Fortaleza"},
+  {iata:"REC", cidade:"Recife", nome:"Aeroporto Internacional do Recife"},
+  {iata:"LIS", cidade:"Lisboa", nome:"Aeroporto Humberto Delgado"},
+  {iata:"JFK", cidade:"Nova York", nome:"John F. Kennedy International Airport"},
+  {iata:"MIA", cidade:"Miami", nome:"Miami International Airport"},
+  {iata:"CDG", cidade:"Paris", nome:"Charles de Gaulle Airport"},
+  {iata:"LHR", cidade:"Londres", nome:"Heathrow Airport"},
+  {iata:"MAD", cidade:"Madrid", nome:"Adolfo Suárez Madrid–Barajas Airport"},
+  {iata:"EZE", cidade:"Buenos Aires", nome:"Aeropuerto Internacional Ezeiza"},
+  {iata:"MDZ", cidade:"Mendoza", nome:"El Plumerillo Airport"}
+];
 
-    window.onload = () => buscar({preventDefault: () => {}});
-  </script>
+// Mock de voos (realista)
+const mockFlights = [
+  {airline:"LATAM", dep:"22:50", arr:"07:40", duration:"13h 00min", stops:"Direto", price:6462},
+  {airline:"GOL", dep:"23:50", arr:"13:20", duration:"13h 30min", stops:"1 escala", price:5795},
+  {airline:"TAP Air Portugal", dep:"18:40", arr:"07:55", duration:"13h 15min", stops:"Direto", price:6319},
+  {airline:"Emirates", dep:"01:20", arr:"18:45", duration:"18h 25min", stops:"1 escala", price:7291},
+  {airline:"Iberia", dep:"20:45", arr:"12:10", duration:"15h 25min", stops:"1 escala", price:6420}
+];
+
+function populateDatalists() {
+  const originList = document.getElementById("origin-list");
+  const destList = document.getElementById("destination-list");
+  
+  DEFAULT_AIRPORTS.forEach(airport => {
+    const option1 = document.createElement("option");
+    option1.value = airport.iata + " - " + airport.cidade;
+    originList.appendChild(option1);
+
+    const option2 = option1.cloneNode(true);
+    destList.appendChild(option2);
+  });
+}
+
+function buscar(e) {
+  e.preventDefault();
+
+  let originInput = document.getElementById("origin").value.trim().toUpperCase().split(" - ")[0] || "GRU";
+  let destinationInput = document.getElementById("destination").value.trim().toUpperCase().split(" - ")[0] || "JFK";
+
+  document.getElementById("header").innerHTML = `
+    Resultados para <span class="text-emerald-600">${originInput}</span> → <span class="text-emerald-600">${destinationInput}</span>
+  `;
+
+  const container = document.getElementById("results");
+  container.innerHTML = "";
+
+  mockFlights.forEach(flight => {
+    container.innerHTML += `
+      <div class="card-hover bg-white border border-orange-100 rounded-3xl p-8 grid grid-cols-12 items-center gap-8 shadow-md">
+        <div class="col-span-2 flex items-center gap-4">
+          <span class="text-5xl">✈️</span>
+          <div>
+            <div class="font-bold text-2xl">${flight.airline}</div>
+          </div>
+        </div>
+        <div class="col-span-4 flex justify-between text-2xl font-medium">
+          <div>${flight.dep}</div>
+          <div class="text-center text-emerald-500">
+            ${flight.duration}<br>
+            <span class="text-sm">${flight.stops}</span>
+          </div>
+          <div>${flight.arr}</div>
+        </div>
+        <div class="col-span-3 text-center">
+          <div class="text-5xl font-bold text-emerald-600">R$ ${flight.price}</div>
+        </div>
+        <div class="col-span-3 flex flex-col gap-4">
+          <a href="https://www.kiwi.com/br/search/results/${originInput}-${destinationInput}/2026-04-15/2026-04-22" target="_blank" 
+             class="bg-orange-500 text-white text-center py-5 rounded-3xl font-semibold text-lg">Comprar no Kiwi.com</a>
+          <button onclick="enviarAlerta()" class="border-2 border-emerald-500 text-emerald-600 py-5 rounded-3xl font-semibold">Alerta WhatsApp</button>
+        </div>
+      </div>`;
+  });
+}
+
+function enviarAlerta() {
+  window.open("https://wa.me/5514998370223?text=🚨%20Alerta%20VooFácil%20-%20Quero%20alerta%20de%20preço!", "_blank");
+}
+
+// Inicializar
+window.onload = () => {
+  populateDatalists();
+  buscar({preventDefault: () => {}});
+};
+</script>
 </body>
 </html>
