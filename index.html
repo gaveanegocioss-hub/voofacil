@@ -28,12 +28,12 @@
   <form onsubmit="buscar(event)" class="bg-white shadow-xl rounded-3xl p-8 grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
     <div class="md:col-span-3">
       <label class="block text-xs font-medium text-gray-500 mb-1">DE ONDE?</label>
-      <input id="origin" list="origin-list" type="text" value="GRU" placeholder="GRU, GIG..." class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
+      <input id="origin" list="origin-list" type="text" value="GRU" placeholder="GRU, IOS, VCP..." class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
       <datalist id="origin-list"></datalist>
     </div>
     <div class="md:col-span-3">
       <label class="block text-xs font-medium text-gray-500 mb-1">PARA ONDE?</label>
-      <input id="destination" list="destination-list" type="text" value="JFK" placeholder="JFK, MIA..." class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
+      <input id="destination" list="destination-list" type="text" value="FCO" placeholder="FCO, MCO, IOS..." class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
       <datalist id="destination-list"></datalist>
     </div>
     <div class="md:col-span-2">
@@ -62,15 +62,65 @@ const AMADEUS_API_SECRET = "WuS1A0xkVCN60Wnt";
 
 const BASE_URL = "https://test.api.amadeus.com";
 
-// Dados de aeroportos para datalist
+// === LISTA ATUALIZADA COM ILHÉUS (IOS) ===
 const DEFAULT_AIRPORTS = [
-  {iata:"GRU", cidade:"São Paulo"}, {iata:"GIG", cidade:"Rio de Janeiro"},
-  {iata:"CGH", cidade:"São Paulo"}, {iata:"CNF", cidade:"Belo Horizonte"},
-  {iata:"FOR", cidade:"Fortaleza"}, {iata:"REC", cidade:"Recife"},
-  {iata:"LIS", cidade:"Lisboa"}, {iata:"JFK", cidade:"Nova York"},
-  {iata:"MIA", cidade:"Miami"}, {iata:"CDG", cidade:"Paris"},
-  {iata:"LHR", cidade:"Londres"}, {iata:"MAD", cidade:"Madrid"},
-  {iata:"EZE", cidade:"Buenos Aires"}, {iata:"MDZ", cidade:"Mendoza"}
+  // === BRASIL ===
+  {iata:"GRU", cidade:"São Paulo (Guarulhos)"}, 
+  {iata:"CGH", cidade:"São Paulo (Congonhas)"},
+  {iata:"GIG", cidade:"Rio de Janeiro (Galeão)"}, 
+  {iata:"SDU", cidade:"Rio de Janeiro (Santos Dumont)"},
+  {iata:"VCP", cidade:"Campinas (Viracopos)"},
+  {iata:"CNF", cidade:"Belo Horizonte (Confins)"}, 
+  {iata:"PLU", cidade:"Belo Horizonte (Pampulha)"},
+  {iata:"BSB", cidade:"Brasília"}, 
+  {iata:"SSA", cidade:"Salvador"},
+  {iata:"FOR", cidade:"Fortaleza"}, 
+  {iata:"REC", cidade:"Recife"},
+  {iata:"POA", cidade:"Porto Alegre"}, 
+  {iata:"CWB", cidade:"Curitiba"},
+  {iata:"FLN", cidade:"Florianópolis"}, 
+  {iata:"NAT", cidade:"Natal"},
+  {iata:"MAO", cidade:"Manaus"}, 
+  {iata:"BEL", cidade:"Belém"},
+
+  // Interior de SP e região
+  {iata:"SJP", cidade:"São José do Rio Preto"}, 
+  {iata:"RAO", cidade:"Ribeirão Preto"},
+  {iata:"JTC", cidade:"Bauru"}, 
+
+  // Bahia e Nordeste
+  {iata:"IOS", cidade:"Ilhéus"}, 
+  {iata:"BPS", cidade:"Porto Seguro"},
+  {iata:"AJU", cidade:"Aracaju"}, 
+  {iata:"MCZ", cidade:"Maceió"},
+  {iata:"JPA", cidade:"João Pessoa"},
+
+  // Outros importantes
+  {iata:"VIX", cidade:"Vitória"}, 
+  {iata:"GYN", cidade:"Goiânia"},
+  {iata:"CGR", cidade:"Campo Grande"}, 
+  {iata:"UDI", cidade:"Uberlândia"},
+  {iata:"THE", cidade:"Teresina"}, 
+  {iata:"SLZ", cidade:"São Luís"},
+  {iata:"CGB", cidade:"Cuiabá"},
+
+  // === INTERNACIONAL ===
+  {iata:"FCO", cidade:"Roma"}, 
+  {iata:"LIS", cidade:"Lisboa"},
+  {iata:"MXP", cidade:"Milão"}, 
+  {iata:"LUX", cidade:"Luxemburgo"},
+  {iata:"CDG", cidade:"Paris"}, 
+  {iata:"LHR", cidade:"Londres"},
+  {iata:"MAD", cidade:"Madrid"}, 
+  {iata:"AMS", cidade:"Amsterdã"},
+  {iata:"EZE", cidade:"Buenos Aires"},
+  {iata:"SCL", cidade:"Santiago (Chile)"},
+  {iata:"MCO", cidade:"Orlando"}, 
+  {iata:"FLL", cidade:"Fort Lauderdale"},
+  {iata:"MIA", cidade:"Miami"},
+  {iata:"JFK", cidade:"Nova York"}, 
+  {iata:"EWR", cidade:"Newark / New Jersey"},
+  {iata:"LIM", cidade:"Lima"}
 ];
 
 let accessToken = null;
@@ -107,7 +157,7 @@ async function buscar(e) {
   if (e) e.preventDefault();
 
   const originInput = document.getElementById("origin").value.trim().split(" - ")[0] || "GRU";
-  const destinationInput = document.getElementById("destination").value.trim().split(" - ")[0] || "JFK";
+  const destinationInput = document.getElementById("destination").value.trim().split(" - ")[0] || "FCO";
   const depDate = document.getElementById("departure").value;
   const retDate = document.getElementById("return").value;
 
@@ -134,7 +184,6 @@ async function buscar(e) {
     const data = await response.json();
     const flights = data.data || [];
 
-    // Header
     document.getElementById("header").innerHTML = `
       Voos reais de <span class="text-emerald-600">${originInput}</span> 
       para <span class="text-emerald-600">${destinationInput}</span> 
@@ -144,7 +193,7 @@ async function buscar(e) {
     container.innerHTML = "";
 
     if (flights.length === 0) {
-      container.innerHTML = `<div class="text-center py-12 text-orange-600">Nenhum voo encontrado para esta rota/data na Amadeus (ambiente de teste).</div>`;
+      container.innerHTML = `<div class="text-center py-12 text-orange-600">Nenhum voo encontrado para esta rota/data na Amadeus (ambiente de teste).<br><br>Tente rotas como GRU-IOS, IOS-GRU, GRU-MCO ou VCP-FCO.</div>`;
       return;
     }
 
@@ -193,7 +242,7 @@ async function buscar(e) {
 
   } catch (error) {
     console.error(error);
-    container.innerHTML = `<div class="text-center py-12 text-red-600">Erro ao buscar voos: ${error.message}<br><br>Verifique sua conexão ou se as credenciais estão corretas.</div>`;
+    container.innerHTML = `<div class="text-center py-12 text-red-600">Erro ao buscar voos: ${error.message}<br><br>Tente novamente ou escolha outra rota.</div>`;
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> BUSCAR`;
@@ -206,7 +255,7 @@ function enviarAlerta() {
 
 window.onload = () => {
   populateDatalists();
-  buscar(null); // busca inicial
+  buscar(null);
 };
 </script>
 </body>
