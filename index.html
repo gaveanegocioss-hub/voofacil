@@ -3,42 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VooFácil - Kiwi.com API (Dados Reais)</title>
+  <title>VooFácil - Busca de Voos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
     body { font-family: 'Poppins', sans-serif; }
     h1, h2 { font-family: 'Playfair Display', serif; }
-    .card-hover:hover { transform: translateY(-4px); }
+    .card-hover:hover { transform: translateY(-6px); transition: all 0.3s; }
   </style>
 </head>
 <body class="bg-gradient-to-b from-yellow-50 to-white min-h-screen">
 <div class="max-w-7xl mx-auto px-6 py-8">
-  <div class="flex items-center justify-between mb-6">
-    <div class="flex items-center gap-3">
-      <div class="text-4xl">✈️</div>
-      <h1 class="text-5xl font-bold text-orange-500">VooFácil 
-        <span class="text-sm font-normal text-emerald-600">(Kiwi.com API - Dados Reais)</span>
-      </h1>
-    </div>
+  <!-- Cabeçalho -->
+  <div class="flex items-center gap-3 mb-8">
+    <div class="text-5xl">✈️</div>
+    <h1 class="text-5xl font-bold text-orange-500">VooFácil</h1>
+    <span class="text-sm font-normal text-emerald-600 mt-3">(Modo Temporário - Preços Simulados)</span>
   </div>
 
   <!-- Aviso -->
-  <div class="bg-emerald-100 border border-emerald-300 text-emerald-800 px-6 py-4 rounded-2xl mb-8 text-sm">
-    ✅ Usando <strong>Kiwi.com Tequila API</strong> — preços e companhias mais reais e variados.
+  <div class="bg-amber-100 border border-amber-300 text-amber-800 px-6 py-4 rounded-2xl mb-8 text-sm flex items-center gap-3">
+    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+    <div>
+      <strong>Modo Temporário:</strong> Preços são simulados e variam conforme a rota. 
+      Quando você criar sua chave Kiwi.com, trocamos para dados reais.
+    </div>
   </div>
 
-  <!-- FORMULÁRIO -->
+  <!-- Formulário -->
   <form onsubmit="buscar(event)" class="bg-white shadow-xl rounded-3xl p-8 grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
     <div class="md:col-span-3">
       <label class="block text-xs font-medium text-gray-500 mb-1">DE ONDE?</label>
-      <input id="origin" list="origin-list" type="text" value="GRU" placeholder="GRU, IOS, VCP..." class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
+      <input id="origin" list="origin-list" type="text" value="GRU" class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
       <datalist id="origin-list"></datalist>
     </div>
     <div class="md:col-span-3">
       <label class="block text-xs font-medium text-gray-500 mb-1">PARA ONDE?</label>
-      <input id="destination" list="destination-list" type="text" value="FCO" placeholder="FCO, MCO, IOS..." class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
+      <input id="destination" list="destination-list" type="text" value="FCO" class="w-full px-6 py-5 border-2 border-orange-200 rounded-3xl text-lg focus:border-orange-500 outline-none">
       <datalist id="destination-list"></datalist>
     </div>
     <div class="md:col-span-2">
@@ -50,7 +52,8 @@
       <input type="date" id="return" value="2026-04-22" class="w-full px-6 py-5 border-2 border-emerald-200 rounded-3xl">
     </div>
     <div class="md:col-span-2 flex items-end">
-      <button type="submit" id="search-btn" class="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xl rounded-3xl flex items-center justify-center gap-3 transition-all">
+      <button type="submit" id="search-btn" 
+              class="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xl rounded-3xl flex items-center justify-center gap-3 transition-all">
         <i class="fa-solid fa-magnifying-glass"></i> BUSCAR
       </button>
     </div>
@@ -61,28 +64,20 @@
 </div>
 
 <script>
-// === SUA CHAVE KIWI TEQUILA (OBRIGATÓRIO) ===
-const KIWI_API_KEY = "SUA_KIWI_API_KEY_AQUI";   // ← Substitua pela sua chave real!
-
-const BASE_URL = "https://tequila-api.kiwi.com";
-
-// Lista completa de aeroportos (atualizada com Ilhéus, Bauru, etc.)
+// Lista completa de aeroportos
 const DEFAULT_AIRPORTS = [
   {iata:"GRU", cidade:"São Paulo (Guarulhos)"}, {iata:"CGH", cidade:"São Paulo (Congonhas)"},
-  {iata:"GIG", cidade:"Rio de Janeiro (Galeão)"}, {iata:"SDU", cidade:"Rio de Janeiro (Santos Dumont)"},
-  {iata:"VCP", cidade:"Campinas"}, {iata:"CNF", cidade:"Belo Horizonte"},
-  {iata:"BSB", cidade:"Brasília"}, {iata:"SSA", cidade:"Salvador"},
-  {iata:"FOR", cidade:"Fortaleza"}, {iata:"REC", cidade:"Recife"},
-  {iata:"IOS", cidade:"Ilhéus"}, {iata:"BPS", cidade:"Porto Seguro"},
-  {iata:"AJU", cidade:"Aracaju"}, {iata:"MCZ", cidade:"Maceió"},
-  {iata:"JPA", cidade:"João Pessoa"}, {iata:"VIX", cidade:"Vitória"},
-  {iata:"SJP", cidade:"São José do Rio Preto"}, {iata:"RAO", cidade:"Ribeirão Preto"},
-  {iata:"JTC", cidade:"Bauru"}, {iata:"FCO", cidade:"Roma"},
-  {iata:"LIS", cidade:"Lisboa"}, {iata:"MXP", cidade:"Milão"},
-  {iata:"LUX", cidade:"Luxemburgo"}, {iata:"MCO", cidade:"Orlando"},
-  {iata:"FLL", cidade:"Fort Lauderdale"}, {iata:"MIA", cidade:"Miami"},
-  {iata:"JFK", cidade:"Nova York"}, {iata:"EWR", cidade:"Newark / New Jersey"},
-  {iata:"EZE", cidade:"Buenos Aires"}, {iata:"SCL", cidade:"Santiago"}
+  {iata:"GIG", cidade:"Rio de Janeiro"}, {iata:"VCP", cidade:"Campinas"},
+  {iata:"CNF", cidade:"Belo Horizonte"}, {iata:"BSB", cidade:"Brasília"},
+  {iata:"SSA", cidade:"Salvador"}, {iata:"FOR", cidade:"Fortaleza"},
+  {iata:"REC", cidade:"Recife"}, {iata:"IOS", cidade:"Ilhéus"},
+  {iata:"BPS", cidade:"Porto Seguro"}, {iata:"SJP", cidade:"São José do Rio Preto"},
+  {iata:"RAO", cidade:"Ribeirão Preto"}, {iata:"JTC", cidade:"Bauru"},
+  {iata:"FCO", cidade:"Roma"}, {iata:"LIS", cidade:"Lisboa"},
+  {iata:"MCO", cidade:"Orlando"}, {iata:"FLL", cidade:"Fort Lauderdale"},
+  {iata:"MIA", cidade:"Miami"}, {iata:"JFK", cidade:"Nova York"},
+  {iata:"EWR", cidade:"New Jersey"}, {iata:"EZE", cidade:"Buenos Aires"},
+  {iata:"SCL", cidade:"Santiago"}
 ];
 
 function populateDatalists() {
@@ -96,11 +91,21 @@ function populateDatalists() {
   });
 }
 
-async function buscar(e) {
+function getPriceByRoute(origin, dest) {
+  const route = `${origin}-${dest}`;
+  if (["GRU-FCO", "GIG-FCO"].includes(route)) return 5800;
+  if (["GRU-MCO", "GIG-MCO"].includes(route)) return 5200;
+  if (["GRU-MIA", "GIG-MIA"].includes(route)) return 4600;
+  if (["GRU-LIS"].includes(route)) return 5400;
+  if (["GRU-EZE"].includes(route)) return 2100;
+  return 3800;
+}
+
+function buscar(e) {
   if (e) e.preventDefault();
 
-  const originInput = document.getElementById("origin").value.trim().split(" - ")[0] || "GRU";
-  const destinationInput = document.getElementById("destination").value.trim().split(" - ")[0] || "FCO";
+  const origin = document.getElementById("origin").value.trim().split(" - ")[0] || "GRU";
+  const dest = document.getElementById("destination").value.trim().split(" - ")[0] || "FCO";
   const depDate = document.getElementById("departure").value;
   const retDate = document.getElementById("return").value;
 
@@ -108,57 +113,29 @@ async function buscar(e) {
   const container = document.getElementById("results");
 
   btn.disabled = true;
-  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Buscando voos reais...`;
-  container.innerHTML = `<div class="text-center py-12 text-gray-500">Conectando ao Kiwi.com...</div>`;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> BUSCANDO...`;
 
-  try {
-    // Formato de data para Kiwi: dd/mm/yyyy
-    const formatDate = (dateStr) => {
-      const [y, m, d] = dateStr.split("-");
-      return `${d}/${m}/${y}`;
-    };
-
-    const dateFrom = formatDate(depDate);
-    const dateTo = retDate ? formatDate(retDate) : dateFrom;
-
-    let url = `${BASE_URL}/v2/search?fly_from=${originInput}&fly_to=${destinationInput}&date_from=${dateFrom}&date_to=${dateFrom}&adults=1&curr=BRL&limit=12`;
-
-    if (retDate) {
-      url += `&return_from=${dateTo}&return_to=${dateTo}`;
-    }
-
-    const response = await fetch(url, {
-      headers: { "apikey": KIWI_API_KEY }
-    });
-
-    if (!response.ok) throw new Error(`Erro ${response.status} - Verifique sua API Key`);
-
-    const data = await response.json();
-    const flights = data.data || [];
-
+  setTimeout(() => {
     document.getElementById("header").innerHTML = `
-      Voos reais de <span class="text-emerald-600">${originInput}</span> 
-      para <span class="text-emerald-600">${destinationInput}</span>
-      <span class="text-xl text-gray-500 ml-4">${depDate}${retDate ? ' ↔ ' + retDate : ''}</span>
+      Voos de <span class="text-emerald-600">${origin}</span> → <span class="text-emerald-600">${dest}</span>
+      <span class="text-xl text-gray-500 ml-4">${depDate} ${retDate ? '↔ ' + retDate : ''}</span>
     `;
 
     container.innerHTML = "";
 
-    if (flights.length === 0) {
-      container.innerHTML = `<div class="text-center py-16 text-orange-600">Nenhum voo encontrado para esta rota/data.<br>Tente outras combinações ou datas diferentes.</div>`;
-      return;
-    }
+    const companies = ["LATAM", "GOL", "TAP Air Portugal", "Emirates", "Iberia", "Azul", "American Airlines", "British Airways"];
+    const basePrice = getPriceByRoute(origin, dest);
 
-    flights.forEach(flight => {
-      const price = flight.price || "—";
-      const depTime = flight.departure ? flight.departure.substring(11,16) : "—";
-      const arrTime = flight.arrival ? flight.arrival.substring(11,16) : "—";
-      const duration = flight.duration ? flight.duration.replace("PT","").replace("H","h ").replace("M","min") : "—";
-      const stops = flight.stops || 0;
-      const airline = flight.airlines ? flight.airlines[0] : "—";
-      const route = flight.route ? flight.route[0] : {};
+    for (let i = 0; i < 8; i++) {
+      const variation = Math.floor(Math.random() * 950) - 450;
+      const price = Math.max(1800, basePrice + variation);
+      const airline = companies[i % companies.length];
+      const depTime = ["22:40", "23:55", "18:30", "01:15", "20:50", "19:10", "06:45", "14:20"][i % 8];
+      const arrTime = ["07:55", "13:10", "08:45", "19:30", "14:20", "12:35", "19:50", "22:10"][i % 8];
+      const duration = ["13h 15min", "13h 45min", "14h 20min", "18h 10min", "15h 30min", "12h 55min", "16h 05min", "14h 50min"][i % 8];
+      const stops = i % 3 === 0 ? "Direto" : (i % 2 === 0 ? "1 escala" : "2 escalas");
 
-      const deepLink = flight.deep_link || `https://www.kiwi.com/br/search/results/${originInput}-${destinationInput}/${depDate.replace(/-/g,'')}/${retDate ? retDate.replace(/-/g,'') : ''}`;
+      const kiwiLink = `https://www.kiwi.com/br/search/results/${origin}-${dest}/${depDate.replace(/-/g,'')}/${retDate ? retDate.replace(/-/g,'') : ''}`;
 
       container.innerHTML += `
         <div class="card-hover bg-white border border-orange-100 rounded-3xl p-8 grid grid-cols-12 items-center gap-8 shadow-md">
@@ -171,31 +148,29 @@ async function buscar(e) {
           </div>
           <div class="col-span-4 flex justify-between text-2xl font-medium">
             <div>${depTime}</div>
-            <div class="text-center text-emerald-500">${duration}<br><span class="text-sm">${stops > 0 ? stops + ' escala(s)' : 'Direto'}</span></div>
+            <div class="text-center text-emerald-500">${duration}<br><span class="text-sm">${stops}</span></div>
             <div>${arrTime}</div>
           </div>
           <div class="col-span-2 text-center">
             <div class="text-4xl font-bold text-emerald-600">R$ ${price}</div>
+            <div class="text-xs text-gray-500">por pessoa</div>
           </div>
           <div class="col-span-3 flex flex-col gap-3">
-            <a href="${deepLink}" target="_blank" 
+            <a href="${kiwiLink}" target="_blank" 
                class="bg-orange-500 hover:bg-orange-600 text-white text-center py-5 rounded-3xl font-semibold text-lg transition">
               Comprar no Kiwi.com
             </a>
-            <button onclick="enviarAlerta()" class="border-2 border-emerald-500 text-emerald-600 py-5 rounded-3xl font-semibold hover:bg-emerald-50 transition">
+            <button onclick="enviarAlerta()" 
+                    class="border-2 border-emerald-500 text-emerald-600 py-5 rounded-3xl font-semibold hover:bg-emerald-50 transition">
               Alerta WhatsApp
             </button>
           </div>
         </div>`;
-    });
+    }
 
-  } catch (error) {
-    console.error(error);
-    container.innerHTML = `<div class="text-center py-12 text-red-600">Erro: ${error.message}<br><br>Verifique se a API Key está correta.</div>`;
-  } finally {
     btn.disabled = false;
     btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> BUSCAR`;
-  }
+  }, 900);
 }
 
 function enviarAlerta() {
@@ -204,7 +179,7 @@ function enviarAlerta() {
 
 window.onload = () => {
   populateDatalists();
-  buscar(null); // busca inicial
+  buscar(null);
 };
 </script>
 </body>
